@@ -123,9 +123,9 @@ public class MediaUtils {
                     frameRecorder.setTimestamp(1000 * (System.currentTimeMillis() - startTime[0]));
                     frameRecorder.record(frame[0]);
 
-                    Thread.sleep(10);
+                    frameGrabber.flush();
                 }
-            } catch (FrameGrabber.Exception | FrameRecorder.Exception | InterruptedException e) {
+            } catch (FrameGrabber.Exception | FrameRecorder.Exception e) {
                 e.printStackTrace();
                 if (onMediaListener != null)
                     onMediaListener.onSuccess();
@@ -135,7 +135,6 @@ public class MediaUtils {
                 canvasFrame.dispose();
                 frameRecorder.stop();
                 frameRecorder.release();
-//                frameGrabber.flush();
 
                 /** 目前不知道为什么调用次方法关闭摄像头抓取器会造成JVM异常崩溃 **/
 //                frameGrabber.stop();
@@ -143,8 +142,6 @@ public class MediaUtils {
                 e.printStackTrace();
                 if (onMediaListener != null)
                     onMediaListener.onFailure();
-            } catch (FrameGrabber.Exception e) {
-                e.printStackTrace();
             }
         }).start();
     }

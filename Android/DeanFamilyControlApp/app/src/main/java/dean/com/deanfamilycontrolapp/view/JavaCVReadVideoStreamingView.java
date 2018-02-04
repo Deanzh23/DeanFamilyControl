@@ -95,6 +95,8 @@ public class JavaCVReadVideoStreamingView extends ImageView {
 
                     // 输出到播放器
                     setVideoDisplay(activity, frame);
+
+                    grabber.flush();
                 }
 
                 // stop以后停止视频流接收
