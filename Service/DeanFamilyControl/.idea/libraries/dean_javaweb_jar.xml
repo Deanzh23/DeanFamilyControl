@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="dean-javaweb-jar">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/lib/dean-javaweb-jar" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+    <jarDirectory url="file://$PROJECT_DIR$/lib/dean-javaweb-jar" recursive="false" />
+  </library>
+</component>
