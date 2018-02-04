@@ -114,6 +114,8 @@ public class MediaUtils {
         new Thread(() -> {
             try {
                 while ((userStopRecord != null && userStopRecord.size() > 0) && (iplImage[0] = converter.convert(frameGrabber.grab())) != null) {
+                    System.out.println("当前监控在线人数:" + (userStopRecord == null ? 0 : userStopRecord.size()) + " 人");
+
                     frame[0] = converter.convert(iplImage[0]);
                     // 在窗体上显示
                     canvasFrame.showImage(frame[0]);
@@ -123,9 +125,11 @@ public class MediaUtils {
                     frameRecorder.setTimestamp(1000 * (System.currentTimeMillis() - startTime[0]));
                     frameRecorder.record(frame[0]);
 
-                    frameGrabber.flush();
+//                    frameGrabber.flush();
+
+                    Thread.sleep(10);
                 }
-            } catch (FrameGrabber.Exception | FrameRecorder.Exception e) {
+            } catch (FrameGrabber.Exception | FrameRecorder.Exception | InterruptedException e) {
                 e.printStackTrace();
                 if (onMediaListener != null)
                     onMediaListener.onSuccess();

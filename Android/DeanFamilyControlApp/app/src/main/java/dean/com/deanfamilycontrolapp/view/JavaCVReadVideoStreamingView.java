@@ -97,12 +97,14 @@ public class JavaCVReadVideoStreamingView extends ImageView {
                     setVideoDisplay(activity, frame);
 
                     grabber.flush();
+
+                    Thread.sleep(10);
                 }
 
                 // stop以后停止视频流接收
                 recorder.stop();
                 grabber.stop();
-            } catch (FrameGrabber.Exception | FrameRecorder.Exception e) {
+            } catch (FrameGrabber.Exception | FrameRecorder.Exception | InterruptedException e) {
                 e.printStackTrace();
 
                 if (activity != null && onJavaCVReadVideoStreamingListener != null)
