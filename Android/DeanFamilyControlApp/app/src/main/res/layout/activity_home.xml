@@ -11,13 +11,15 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@android:color/white">
+            android:background="@android:color/white"
+            android:padding="16dp">
 
-            <dean.com.deanfamilycontrolapp.view.JavaCVReadVideoStreamingView
-                android:id="@+id/monitorView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
-
+            <TextView
+                android:id="@+id/monitorTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:text="监控"/>
         </RelativeLayout>
     </FrameLayout>
 

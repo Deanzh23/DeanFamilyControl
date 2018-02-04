@@ -110,6 +110,9 @@ public class JavaCVReadVideoStreamingView extends ImageView {
                     grabber.stop();
                 } catch (FrameGrabber.Exception e) {
                     e.printStackTrace();
+
+                    if (activity != null && onJavaCVReadVideoStreamingListener != null)
+                        activity.runOnUiThread(() -> onJavaCVReadVideoStreamingListener.onError(e.getMessage()));
                 }
             }
         }).start();
@@ -136,7 +139,6 @@ public class JavaCVReadVideoStreamingView extends ImageView {
         Bitmap bitmap = androidFrameConverter.convert(frame);
         activity.runOnUiThread(() -> {
             JavaCVReadVideoStreamingView.this.setBackground(new BitmapDrawable(bitmap));
-//            JavaCVReadVideoStreamingView.this.setImageBitmap(bitmap);
         });
     }
 

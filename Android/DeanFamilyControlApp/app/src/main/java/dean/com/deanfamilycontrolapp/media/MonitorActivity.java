@@ -6,10 +6,13 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
+import com.dean.android.framework.convenient.activity.ConvenientActivity;
+import com.dean.android.framework.convenient.view.ContentView;
+
 import dean.com.deanfamilycontrolapp.R;
+import dean.com.deanfamilycontrolapp.databinding.ActivityMonitorBinding;
 import dean.com.deanfamilycontrolapp.view.JavaCVReadVideoStreamingView;
 
 /**
@@ -17,7 +20,8 @@ import dean.com.deanfamilycontrolapp.view.JavaCVReadVideoStreamingView;
  * <p>
  * Created by dean on 2018/2/4.
  */
-public class MonitorActivity extends AppCompatActivity implements JavaCVReadVideoStreamingView.OnJavaCVReadVideoStreamingListener {
+@ContentView(R.layout.activity_monitor)
+public class MonitorActivity extends ConvenientActivity<ActivityMonitorBinding> implements JavaCVReadVideoStreamingView.OnJavaCVReadVideoStreamingListener {
 
     private static String RTMP_URL = "rtmp://192.168.0.101/live/stream";
     private static String VIDEO_FILE_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + "JavaCVDemo.flv";
@@ -30,12 +34,9 @@ public class MonitorActivity extends AppCompatActivity implements JavaCVReadVide
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_monitor);
 
-        monitorView = findViewById(R.id.monitorView);
-        monitorView.play(this, RTMP_URL, VIDEO_FILE_PATH, 0, this);
+        viewDataBinding.monitorView.play(this, RTMP_URL, VIDEO_FILE_PATH, 0, this);
     }
-
 
     @Override
     public void onConnect() {
@@ -62,7 +63,7 @@ public class MonitorActivity extends AppCompatActivity implements JavaCVReadVide
             progressDialog.dismiss();
 
         long endTime = System.currentTimeMillis();
-        Toast.makeText(this, "连接用时: " + (endTime - startTime) / 1000 + "s", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "连接用时: " + (endTime - startTime) / 1000 + "s", Toast.LENGTH_LONG).show();
     }
 
     @Override

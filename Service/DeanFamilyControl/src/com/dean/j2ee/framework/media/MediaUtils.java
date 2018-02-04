@@ -143,36 +143,10 @@ public class MediaUtils {
                 e.printStackTrace();
                 if (onMediaListener != null)
                     onMediaListener.onFailure();
+            } catch (FrameGrabber.Exception e) {
+                e.printStackTrace();
             }
         }).start();
-    }
-
-    public static void frameRecord(String inputFile, String outputFile, int audioChannel) throws Exception {
-        boolean isStart = true;//该变量建议设置为全局控制变量，用于控制录制结束
-        // 获取视频源
-        FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(inputFile);
-        // 流媒体输出地址，分辨率（长，高），是否录制音频（0:不录制/1:录制）
-        FFmpegFrameRecorder recorder = new FFmpegFrameRecorder(outputFile, 1280, 720, audioChannel);
-        // 开始取视频源
-        recordByFrame(grabber, recorder, isStart);
-    }
-
-    private static void recordByFrame(FFmpegFrameGrabber grabber, FFmpegFrameRecorder recorder, Boolean status) throws Exception {
-        //建议在线程中使用该方法
-        try {
-            grabber.start();
-            recorder.start();
-            Frame frame;
-            while (status && (frame = grabber.grabFrame()) != null) {
-                recorder.record(frame);
-            }
-            recorder.stop();
-            grabber.stop();
-        } finally {
-            if (grabber != null) {
-                grabber.stop();
-            }
-        }
     }
 
 }
