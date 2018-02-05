@@ -1,5 +1,6 @@
 package dean.com.deanfamilycontrolapp.media;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
@@ -22,7 +23,8 @@ import java.util.List;
 import dean.com.deanfamilycontrolapp.Config;
 import dean.com.deanfamilycontrolapp.R;
 import dean.com.deanfamilycontrolapp.databinding.ActivityMonitorBinding;
-import dean.com.deanfamilycontrolapp.view.JavaCVReadVideoStreamingView;
+import dean.com.deanfamilycontrolapp.view.JavaCVReadVideoStreamingSurfaceView;
+import io.vov.vitamio.Vitamio;
 
 /**
  * 监控 Activity
@@ -30,7 +32,7 @@ import dean.com.deanfamilycontrolapp.view.JavaCVReadVideoStreamingView;
  * Created by dean on 2018/2/4.
  */
 @ContentView(R.layout.activity_monitor)
-public class MonitorActivity extends ConvenientActivity<ActivityMonitorBinding> implements JavaCVReadVideoStreamingView.OnJavaCVReadVideoStreamingListener {
+public class MonitorActivity extends ConvenientActivity<ActivityMonitorBinding> implements JavaCVReadVideoStreamingSurfaceView.OnJavaCVReadVideoStreamingListener {
 
     private static String VIDEO_FILE_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + "JavaCVDemo.flv";
 
@@ -43,6 +45,8 @@ public class MonitorActivity extends ConvenientActivity<ActivityMonitorBinding> 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         // 保持屏幕常亮
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        Vitamio.isInitialized(getApplicationContext());
 
         viewDataBinding.elasticityLoadingView.startAndHideView(viewDataBinding.monitorView);
         // 发起服务器连接请求
@@ -63,8 +67,12 @@ public class MonitorActivity extends ConvenientActivity<ActivityMonitorBinding> 
 
                         if ("200".equals(code)) {
                             String url = response.getString("data");
-                            viewDataBinding.monitorView.play(MonitorActivity.this, url, VIDEO_FILE_PATH, 0,
-                                    MonitorActivity.this);
+//                            viewDataBinding.monitorView.play(MonitorActivity.this, url, VIDEO_FILE_PATH, 0,
+//                                    MonitorActivity.this);
+
+                            viewDataBinding.elasticityLoadingView.stopAndShowView(viewDataBinding.videoView);
+                            viewDataBinding.videoView.setVideoURI(Uri.parse(url));
+                            viewDataBinding.videoView.start();
 
                             ToastUtil.showToast(MonitorActivity.this, url, Toast.LENGTH_LONG, ToastUtil.LOCATION_MIDDLE);
                         } else {

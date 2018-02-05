@@ -11,7 +11,6 @@ public class DFCApplication extends ConvenientApplication {
 
     @Override
     protected void initConfigAndData() {
-//        Vitamio.initialize(this);
 
         try {
             Thread.sleep(2000);
