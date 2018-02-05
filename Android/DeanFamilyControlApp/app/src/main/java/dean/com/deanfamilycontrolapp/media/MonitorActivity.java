@@ -81,7 +81,7 @@ public class MonitorActivity extends ConvenientActivity<ActivityMonitorBinding> 
             @Override
             public void onError(int i) {
                 MonitorActivity.this.runOnUiThread(() -> {
-                    ToastUtil.showToast(MonitorActivity.this, "服务器指令失败", Toast.LENGTH_LONG, ToastUtil.LOCATION_MIDDLE);
+                    ToastUtil.showToast(MonitorActivity.this, "媒体流读取失败");
                     MonitorActivity.this.finish();
                 });
             }

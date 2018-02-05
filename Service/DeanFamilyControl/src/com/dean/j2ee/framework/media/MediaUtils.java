@@ -129,11 +129,9 @@ public class MediaUtils {
                     frameRecorder.setTimestamp(1000 * (System.currentTimeMillis() - startTime[0]));
                     frameRecorder.record(frame[0]);
 
-//                    frameGrabber.flush();
-
-                    Thread.sleep(10);
+                    frameGrabber.flush();
                 }
-            } catch (FrameGrabber.Exception | FrameRecorder.Exception | InterruptedException e) {
+            } catch (FrameGrabber.Exception | FrameRecorder.Exception e) {
                 e.printStackTrace();
                 if (onMediaListener != null)
                     onMediaListener.onSuccess();
