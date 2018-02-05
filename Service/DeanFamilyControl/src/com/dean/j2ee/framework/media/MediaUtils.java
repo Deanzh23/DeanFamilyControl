@@ -4,7 +4,10 @@ import org.bytedeco.javacpp.Loader;
 import org.bytedeco.javacpp.avcodec;
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_objdetect;
-import org.bytedeco.javacv.*;
+import org.bytedeco.javacv.CanvasFrame;
+import org.bytedeco.javacv.FrameGrabber;
+import org.bytedeco.javacv.FrameRecorder;
+import org.bytedeco.javacv.OpenCVFrameConverter;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -114,7 +117,8 @@ public class MediaUtils {
         new Thread(() -> {
             try {
                 while ((userStopRecord != null && userStopRecord.size() > 0) && (iplImage[0] = converter.convert(frameGrabber.grab())) != null) {
-                    System.out.println("当前监控在线人数:" + (userStopRecord == null ? 0 : userStopRecord.size()) + " 人");
+                    // 在线人数
+                    countChange();
 
                     frame[0] = converter.convert(iplImage[0]);
                     // 在窗体上显示
@@ -148,6 +152,21 @@ public class MediaUtils {
                     onMediaListener.onFailure();
             }
         }).start();
+    }
+
+    /**
+     * 数量统计
+     */
+    private static int countStatistics = -1;
+
+    /**
+     * 人数统计
+     */
+    private static void countChange() {
+        int count = userStopRecord == null ? 0 : userStopRecord.size();
+
+        if (countStatistics != count)
+            System.out.println("当前监控在线人数:" + (countStatistics = count) + " 人");
     }
 
 }

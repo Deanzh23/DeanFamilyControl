@@ -65,6 +65,12 @@ public class MonitorActivity extends ConvenientActivity<ActivityMonitorBinding> 
                             String url = response.getString("data");
                             viewDataBinding.monitorView.play(MonitorActivity.this, url, VIDEO_FILE_PATH, 0,
                                     MonitorActivity.this);
+
+                            ToastUtil.showToast(MonitorActivity.this, url, Toast.LENGTH_LONG, ToastUtil.LOCATION_MIDDLE);
+                        } else {
+                            String message = response.getString("message");
+                            ToastUtil.showToast(MonitorActivity.this, message, Toast.LENGTH_LONG, ToastUtil.LOCATION_MIDDLE);
+                            MonitorActivity.this.finish();
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();

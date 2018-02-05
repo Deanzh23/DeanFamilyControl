@@ -20,8 +20,10 @@ public class CommandUtils {
             return;
 
         PrintWriter printWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(process.getOutputStream())), true);
-        for (String command : commands)
+        for (String command : commands) {
+            System.out.println("[out]--> " + command);
             printWriter.println(command);
+        }
         printWriter.println("exit");
 
         InputStream inputStream;
@@ -36,7 +38,9 @@ public class CommandUtils {
         while ((line = reader.readLine()) != null)
             System.out.println("[in]--> " + line);
 
-        process.waitFor();
+        int state = process.waitFor();
+        System.out.println("===============================================================");
+        System.out.println(state == 0 ? "命令执行" : "命令执行失败!");
 
         inputStream.close();
         inputStreamReader.close();

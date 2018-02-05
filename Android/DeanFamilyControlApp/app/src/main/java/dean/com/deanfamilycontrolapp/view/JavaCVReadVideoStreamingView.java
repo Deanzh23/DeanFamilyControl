@@ -9,8 +9,6 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
-import org.bytedeco.javacpp.Loader;
-import org.bytedeco.javacpp.opencv_objdetect;
 import org.bytedeco.javacv.AndroidFrameConverter;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.FFmpegFrameRecorder;
@@ -65,8 +63,6 @@ public class JavaCVReadVideoStreamingView extends ImageView {
      * @param onJavaCVReadVideoStreamingListener 监听器
      */
     public void play(Activity activity, String rtmp, String outputFilePath, int audioChannel, OnJavaCVReadVideoStreamingListener onJavaCVReadVideoStreamingListener) {
-        Loader.load(opencv_objdetect.class);
-
         stop = false;
 
         new Thread(() -> {
@@ -141,9 +137,10 @@ public class JavaCVReadVideoStreamingView extends ImageView {
 
         AndroidFrameConverter androidFrameConverter = new AndroidFrameConverter();
         Bitmap bitmap = androidFrameConverter.convert(frame);
-        activity.runOnUiThread(() -> {
-            JavaCVReadVideoStreamingView.this.setBackground(new BitmapDrawable(bitmap));
-        });
+        activity.runOnUiThread(() -> JavaCVReadVideoStreamingView.this.setBackground(new BitmapDrawable(bitmap)));
+
+//        VideoView view = new VideoView(this);
+//        view.setVideoURI();
     }
 
 }
