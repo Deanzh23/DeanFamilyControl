@@ -1,10 +1,11 @@
 package dean.com.deanfamilycontrolapp.media;
 
+import android.annotation.SuppressLint;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -23,7 +24,7 @@ import java.util.List;
 import dean.com.deanfamilycontrolapp.Config;
 import dean.com.deanfamilycontrolapp.R;
 import dean.com.deanfamilycontrolapp.databinding.ActivityMonitorBinding;
-import dean.com.deanfamilycontrolapp.view.JavaCVReadVideoStreamingSurfaceView;
+import io.vov.vitamio.MediaPlayer;
 import io.vov.vitamio.Vitamio;
 
 /**
@@ -32,11 +33,7 @@ import io.vov.vitamio.Vitamio;
  * Created by dean on 2018/2/4.
  */
 @ContentView(R.layout.activity_monitor)
-public class MonitorActivity extends ConvenientActivity<ActivityMonitorBinding> implements JavaCVReadVideoStreamingSurfaceView.OnJavaCVReadVideoStreamingListener {
-
-    private static String VIDEO_FILE_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + "JavaCVDemo.flv";
-
-    private long startTime;
+public class MonitorActivity extends ConvenientActivity<ActivityMonitorBinding> implements MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnInfoListener {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -47,8 +44,11 @@ public class MonitorActivity extends ConvenientActivity<ActivityMonitorBinding> 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         Vitamio.isInitialized(getApplicationContext());
+        viewDataBinding.elasticityLoadingView.startAndHideView(viewDataBinding.videoLayout);
 
-        viewDataBinding.elasticityLoadingView.startAndHideView(viewDataBinding.monitorView);
+        viewDataBinding.videoView.setOnBufferingUpdateListener(this);
+        viewDataBinding.videoView.setOnInfoListener(this);
+
         // 发起服务器连接请求
         new Thread(() -> requestConnect()).start();
     }
@@ -67,10 +67,6 @@ public class MonitorActivity extends ConvenientActivity<ActivityMonitorBinding> 
 
                         if ("200".equals(code)) {
                             String url = response.getString("data");
-//                            viewDataBinding.monitorView.play(MonitorActivity.this, url, VIDEO_FILE_PATH, 0,
-//                                    MonitorActivity.this);
-
-                            viewDataBinding.elasticityLoadingView.stopAndShowView(viewDataBinding.videoView);
                             viewDataBinding.videoView.setVideoURI(Uri.parse(url));
                             viewDataBinding.videoView.start();
 
@@ -89,8 +85,7 @@ public class MonitorActivity extends ConvenientActivity<ActivityMonitorBinding> 
             @Override
             public void onError(int i) {
                 MonitorActivity.this.runOnUiThread(() -> {
-                    ToastUtil.showToast(MonitorActivity.this, "媒体流读取失败");
-                    MonitorActivity.this.finish();
+                    MonitorActivity.this.onError("连接服务器失败");
                 });
             }
 
@@ -100,35 +95,29 @@ public class MonitorActivity extends ConvenientActivity<ActivityMonitorBinding> 
 
             @Override
             public void onEnd() {
+                MonitorActivity.this.runOnUiThread(() -> viewDataBinding.elasticityLoadingView.stopAndShowView(viewDataBinding.videoLayout));
             }
         });
     }
 
-    @Override
-    public void onConnect() {
-        startTime = System.currentTimeMillis();
-    }
-
-    @Override
-    public void onPlay() {
-        viewDataBinding.elasticityLoadingView.stopAndShowView(viewDataBinding.monitorView);
-
-        long endTime = System.currentTimeMillis();
-        Toast.makeText(this, "连接用时: " + (endTime - startTime) / 1000 + "s", Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onError(String error) {
+    /**
+     * 服务器相关错误
+     *
+     * @param error
+     */
+    private void onError(String error) {
         stop();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(error);
+        builder.setPositiveButton("退出", (dialog, which) -> MonitorActivity.this.finish());
+        builder.setCancelable(false);
         builder.create().show();
     }
 
     private void stop() {
         // 停止视频媒体流
-        viewDataBinding.monitorView.stop();
+        viewDataBinding.videoView.stopPlayback();
 
         new Thread(() -> {
             List<String> urlParams = new ArrayList<>();
@@ -143,5 +132,39 @@ public class MonitorActivity extends ConvenientActivity<ActivityMonitorBinding> 
         stop();
 
         super.onDestroy();
+    }
+
+    @SuppressLint("SetTextI18n")
+    @Override
+    public void onBufferingUpdate(MediaPlayer mediaPlayer, int percent) {
+        viewDataBinding.loadTextView.setText(percent + "%");
+    }
+
+    @SuppressLint("SetTextI18n")
+    @Override
+    public boolean onInfo(MediaPlayer mp, int what, int extra) {
+        switch (what) {
+            case MediaPlayer.MEDIA_INFO_BUFFERING_START:
+                if (viewDataBinding.videoView.isPlaying()) {
+                    viewDataBinding.videoView.pause();
+                    viewDataBinding.scheduleProgressBar.setVisibility(View.VISIBLE);
+                    viewDataBinding.downloadTextView.setText("");
+                    viewDataBinding.loadTextView.setText("");
+                    viewDataBinding.downloadTextView.setVisibility(View.VISIBLE);
+                    viewDataBinding.loadTextView.setVisibility(View.VISIBLE);
+                }
+                break;
+            case MediaPlayer.MEDIA_INFO_BUFFERING_END:
+                viewDataBinding.videoView.start();
+                viewDataBinding.scheduleProgressBar.setVisibility(View.GONE);
+                viewDataBinding.downloadTextView.setVisibility(View.GONE);
+                viewDataBinding.loadTextView.setVisibility(View.GONE);
+                break;
+            case MediaPlayer.MEDIA_INFO_DOWNLOAD_RATE_CHANGED:
+                viewDataBinding.downloadTextView.setText(extra + "kb/s" + "  ");
+                break;
+        }
+
+        return true;
     }
 }
