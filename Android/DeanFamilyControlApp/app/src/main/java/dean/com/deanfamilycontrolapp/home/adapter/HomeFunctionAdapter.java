@@ -39,7 +39,7 @@ public class HomeFunctionAdapter extends ConvenientAdapter<AdapterHomeFunctionBi
         FunctionModel functionModel = functionModels.get(i);
 
         // 设置图标
-        adapterHomeFunctionBinding.imageView.setBackgroundResource(functionModel.getLogoResId());
+        adapterHomeFunctionBinding.imageView.setImageResource(functionModel.getLogoResId());
         adapterHomeFunctionBinding.imageView.post(() -> {
             RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) adapterHomeFunctionBinding.imageView.getLayoutParams();
             layoutParams.height = layoutParams.width;

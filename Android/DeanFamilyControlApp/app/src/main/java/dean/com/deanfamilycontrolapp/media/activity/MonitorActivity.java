@@ -21,9 +21,9 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import dean.com.deanfamilycontrolapp.main.Config;
 import dean.com.deanfamilycontrolapp.R;
 import dean.com.deanfamilycontrolapp.databinding.ActivityMonitorBinding;
+import dean.com.deanfamilycontrolapp.main.Config;
 import io.vov.vitamio.MediaPlayer;
 import io.vov.vitamio.Vitamio;
 
@@ -34,6 +34,8 @@ import io.vov.vitamio.Vitamio;
  */
 @ContentView(R.layout.activity_monitor)
 public class MonitorActivity extends ConvenientActivity<ActivityMonitorBinding> implements MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnInfoListener {
+
+    private boolean activityFinish = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -60,33 +62,33 @@ public class MonitorActivity extends ConvenientActivity<ActivityMonitorBinding> 
         connection.sendHttpPost(Config.BASE_URL + Config.START_PHOTOGRAPH, null, urlParams, (String) null, new OnHttpConnectionListener() {
             @Override
             public void onSuccess(String s) {
-                MonitorActivity.this.runOnUiThread(() -> {
-                    try {
-                        JSONObject response = new JSONObject(s);
-                        String code = response.getString("code");
+                if (!activityFinish)
+                    MonitorActivity.this.runOnUiThread(() -> {
+                        try {
+                            JSONObject response = new JSONObject(s);
+                            String code = response.getString("code");
 
-                        if ("200".equals(code)) {
-                            String url = response.getString("data");
-                            viewDataBinding.videoView.setVideoURI(Uri.parse(url));
-                            viewDataBinding.videoView.start();
+                            if ("200".equals(code)) {
+                                String url = response.getString("data");
+                                viewDataBinding.videoView.setVideoURI(Uri.parse(url));
+                                viewDataBinding.videoView.start();
 
-                            ToastUtil.showToast(MonitorActivity.this, url, Toast.LENGTH_LONG, ToastUtil.LOCATION_MIDDLE);
-                        } else {
-                            String message = response.getString("message");
-                            ToastUtil.showToast(MonitorActivity.this, message, Toast.LENGTH_LONG, ToastUtil.LOCATION_MIDDLE);
-                            MonitorActivity.this.finish();
+                                ToastUtil.showToast(MonitorActivity.this, url, Toast.LENGTH_LONG, ToastUtil.LOCATION_MIDDLE);
+                            } else {
+                                String message = response.getString("message");
+                                ToastUtil.showToast(MonitorActivity.this, message, Toast.LENGTH_LONG, ToastUtil.LOCATION_MIDDLE);
+                                MonitorActivity.this.finish();
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                });
+                    });
             }
 
             @Override
             public void onError(int i) {
-                MonitorActivity.this.runOnUiThread(() -> {
-                    MonitorActivity.this.onError("连接服务器失败");
-                });
+                if (!activityFinish)
+                    MonitorActivity.this.runOnUiThread(() -> MonitorActivity.this.onError("连接服务器失败"));
             }
 
             @Override
@@ -95,7 +97,7 @@ public class MonitorActivity extends ConvenientActivity<ActivityMonitorBinding> 
 
             @Override
             public void onEnd() {
-                if (!MonitorActivity.this.isDestroyed())
+                if (!activityFinish)
                     MonitorActivity.this.runOnUiThread(() -> viewDataBinding.elasticityLoadingView.stopAndShowView(viewDataBinding.videoLayout));
             }
         });
@@ -130,6 +132,7 @@ public class MonitorActivity extends ConvenientActivity<ActivityMonitorBinding> 
 
     @Override
     protected void onDestroy() {
+        activityFinish = true;
         stop();
 
         super.onDestroy();
@@ -168,4 +171,5 @@ public class MonitorActivity extends ConvenientActivity<ActivityMonitorBinding> 
 
         return true;
     }
+
 }
