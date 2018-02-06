@@ -1,4 +1,4 @@
-package dean.com.deanfamilycontrolapp.media;
+package dean.com.deanfamilycontrolapp.media.activity;
 
 import android.annotation.SuppressLint;
 import android.net.Uri;
@@ -21,7 +21,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import dean.com.deanfamilycontrolapp.Config;
+import dean.com.deanfamilycontrolapp.main.Config;
 import dean.com.deanfamilycontrolapp.R;
 import dean.com.deanfamilycontrolapp.databinding.ActivityMonitorBinding;
 import io.vov.vitamio.MediaPlayer;
@@ -95,7 +95,8 @@ public class MonitorActivity extends ConvenientActivity<ActivityMonitorBinding> 
 
             @Override
             public void onEnd() {
-                MonitorActivity.this.runOnUiThread(() -> viewDataBinding.elasticityLoadingView.stopAndShowView(viewDataBinding.videoLayout));
+                if (!MonitorActivity.this.isDestroyed())
+                    MonitorActivity.this.runOnUiThread(() -> viewDataBinding.elasticityLoadingView.stopAndShowView(viewDataBinding.videoLayout));
             }
         });
     }

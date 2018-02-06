@@ -11,9 +11,8 @@ public class DFCApplication extends ConvenientApplication {
 
     @Override
     protected void initConfigAndData() {
-
         try {
-            Thread.sleep(2000);
+            Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

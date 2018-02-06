@@ -1,4 +1,4 @@
-package dean.com.deanfamilycontrolapp;
+package dean.com.deanfamilycontrolapp.main;
 
 /**
  * 配置

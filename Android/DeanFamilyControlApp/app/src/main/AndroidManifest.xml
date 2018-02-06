@@ -30,12 +30,12 @@
 
         <!-- Home Activity -->
         <activity
-            android:name=".home.HomeActivity"
+            android:name=".home.activity.HomeActivity"
             android:screenOrientation="portrait"/>
 
         <!-- 监控Activity -->
         <activity
-            android:name=".media.MonitorActivity"
+            android:name=".media.activity.MonitorActivity"
             android:screenOrientation="landscape"/>
 
     </application>
