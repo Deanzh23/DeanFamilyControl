@@ -1,11 +1,8 @@
 package dean.com.deanfamilycontrolapp.media.activity;
 
-import android.annotation.SuppressLint;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
-import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -24,8 +21,7 @@ import java.util.List;
 import dean.com.deanfamilycontrolapp.R;
 import dean.com.deanfamilycontrolapp.databinding.ActivityMonitorBinding;
 import dean.com.deanfamilycontrolapp.main.Config;
-import io.vov.vitamio.MediaPlayer;
-import io.vov.vitamio.Vitamio;
+import dean.com.deanfamilycontrolapp.view.JavaCVVideoPlayerView;
 
 /**
  * 监控 Activity
@@ -33,7 +29,7 @@ import io.vov.vitamio.Vitamio;
  * Created by dean on 2018/2/4.
  */
 @ContentView(R.layout.activity_monitor)
-public class MonitorActivity extends ConvenientActivity<ActivityMonitorBinding> implements MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnInfoListener {
+public class MonitorActivity extends ConvenientActivity<ActivityMonitorBinding> {
 
     private boolean activityFinish = false;
 
@@ -45,14 +41,38 @@ public class MonitorActivity extends ConvenientActivity<ActivityMonitorBinding> 
         // 保持屏幕常亮
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        Vitamio.isInitialized(getApplicationContext());
-        viewDataBinding.elasticityLoadingView.startAndHideView(viewDataBinding.videoLayout);
+//        Vitamio.isInitialized(getApplicationContext());
+//        viewDataBinding.elasticityLoadingView.startAndHideView(viewDataBinding.videoLayout);
 
-        viewDataBinding.videoView.setOnBufferingUpdateListener(this);
-        viewDataBinding.videoView.setOnInfoListener(this);
+//        viewDataBinding.videoView.setVideoURI(Uri.parse("rtmp://192.168.0.131:1935/live/stream"));
+//        viewDataBinding.videoView.start();
 
         // 发起服务器连接请求
-        new Thread(() -> requestConnect()).start();
+//        new Thread(() -> requestConnect()).start();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        viewDataBinding.videoPlayerView.start(MonitorActivity.this, "rtmp://192.168.0.131:1935/live/stream",
+                new JavaCVVideoPlayerView.OnVideoPlayerListener() {
+                    @Override
+                    public void onConnect() {
+                        ToastUtil.showToast(MonitorActivity.this, "onConnect", Toast.LENGTH_LONG, ToastUtil.LOCATION_MIDDLE);
+                    }
+
+                    @Override
+                    public void onStart() {
+                        ToastUtil.showToast(MonitorActivity.this, "onStart", Toast.LENGTH_LONG, ToastUtil.LOCATION_MIDDLE);
+                    }
+
+                    @Override
+                    public void onError(String error) {
+                        ToastUtil.showToast(MonitorActivity.this, error, Toast.LENGTH_LONG, ToastUtil.LOCATION_MIDDLE);
+                    }
+                });
+
     }
 
     private void requestConnect() {
@@ -70,8 +90,8 @@ public class MonitorActivity extends ConvenientActivity<ActivityMonitorBinding> 
 
                             if ("200".equals(code)) {
                                 String url = response.getString("data");
-                                viewDataBinding.videoView.setVideoURI(Uri.parse(url));
-                                viewDataBinding.videoView.start();
+//                                viewDataBinding.videoView.setVideoURI(Uri.parse(url));
+//                                viewDataBinding.videoView.start();
 
                                 ToastUtil.showToast(MonitorActivity.this, url, Toast.LENGTH_LONG, ToastUtil.LOCATION_MIDDLE);
                             } else {
@@ -97,8 +117,6 @@ public class MonitorActivity extends ConvenientActivity<ActivityMonitorBinding> 
 
             @Override
             public void onEnd() {
-                if (!activityFinish)
-                    MonitorActivity.this.runOnUiThread(() -> viewDataBinding.elasticityLoadingView.stopAndShowView(viewDataBinding.videoLayout));
             }
         });
     }
@@ -120,7 +138,6 @@ public class MonitorActivity extends ConvenientActivity<ActivityMonitorBinding> 
 
     private void stop() {
         // 停止视频媒体流
-        viewDataBinding.videoView.stopPlayback();
 
         new Thread(() -> {
             List<String> urlParams = new ArrayList<>();
@@ -136,40 +153,6 @@ public class MonitorActivity extends ConvenientActivity<ActivityMonitorBinding> 
         stop();
 
         super.onDestroy();
-    }
-
-    @SuppressLint("SetTextI18n")
-    @Override
-    public void onBufferingUpdate(MediaPlayer mediaPlayer, int percent) {
-        viewDataBinding.loadTextView.setText(percent + "%");
-    }
-
-    @SuppressLint("SetTextI18n")
-    @Override
-    public boolean onInfo(MediaPlayer mp, int what, int extra) {
-        switch (what) {
-            case MediaPlayer.MEDIA_INFO_BUFFERING_START:
-                if (viewDataBinding.videoView.isPlaying()) {
-                    viewDataBinding.videoView.pause();
-                    viewDataBinding.scheduleProgressBar.setVisibility(View.VISIBLE);
-                    viewDataBinding.downloadTextView.setText("");
-                    viewDataBinding.loadTextView.setText("");
-                    viewDataBinding.downloadTextView.setVisibility(View.VISIBLE);
-                    viewDataBinding.loadTextView.setVisibility(View.VISIBLE);
-                }
-                break;
-            case MediaPlayer.MEDIA_INFO_BUFFERING_END:
-                viewDataBinding.videoView.start();
-                viewDataBinding.scheduleProgressBar.setVisibility(View.GONE);
-                viewDataBinding.downloadTextView.setVisibility(View.GONE);
-                viewDataBinding.loadTextView.setVisibility(View.GONE);
-                break;
-            case MediaPlayer.MEDIA_INFO_DOWNLOAD_RATE_CHANGED:
-                viewDataBinding.downloadTextView.setText(extra + "kb/s" + "  ");
-                break;
-        }
-
-        return true;
     }
 
 }

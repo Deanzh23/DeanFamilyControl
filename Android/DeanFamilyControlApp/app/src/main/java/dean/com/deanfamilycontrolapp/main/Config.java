@@ -7,7 +7,7 @@ package dean.com.deanfamilycontrolapp.main;
  */
 public interface Config {
 
-    String BASE_URL = "http://10.88.54.236:8101/fc/";
+    String BASE_URL = "http://192.168.0.131:8101/fc/";
     /**
      * 开启监控媒体流
      */

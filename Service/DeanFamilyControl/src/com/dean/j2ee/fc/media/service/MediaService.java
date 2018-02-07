@@ -2,6 +2,7 @@ package com.dean.j2ee.fc.media.service;
 
 import com.dean.j2ee.fc.Config;
 import com.dean.j2ee.fc.auth.db.TokenDB;
+import com.dean.j2ee.framework.command.CommandUtils;
 import com.dean.j2ee.framework.media.MediaUtils;
 import com.dean.j2ee.framework.service.ConvenientService;
 import com.dean.j2ee.framework.utils.TextUils;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,50 +52,64 @@ public class MediaService extends ConvenientService {
 
         JSONObject response = new JSONObject();
 
-        try {
-            // 启动red5服务
-            startRed5Service();
-            // 等待red5服务开启完成
-            // red5服务开启成功
-            if (red5Started()) {
-                System.out.println("=========================================================");
-                System.out.println("RED5 Service start success.");
-
-                MediaUtils.startPhotograph(token, Config.Media.RTMP_URL, Config.Media.FRAME_RATE, new MediaUtils.OnMediaListener() {
-                    @Override
-                    public void onSuccess() {
-                        System.out.println("FrameRecorder start success.");
-                    }
-
-                    @Override
-                    public void onFailure() {
-                        System.out.println("FrameRecorder start failure!");
-                    }
-                });
-
-                response.put("code", RESPONSE_SUCCESS);
-                response.put("data", Config.Media.RTMP_URL);
+        new Thread(() -> {
+            List<String> commands = new ArrayList<>();
+            commands.add("ffmpeg -f avfoundation -framerate 30 -video_size 1280x720 -i \"0\" -vcodec libx264 -acodec libfaac -r 20 -b 100k -bt 150 -bufsize 50000k " +
+                    "-f flv rtmp://10.88.54.236:1935/live/stream");
+            try {
+                CommandUtils.execute(commands);
+            } catch (IOException | InterruptedException e) {
+                e.printStackTrace();
             }
-            // red5服务开启失败
-            else {
-                System.out.println("=========================================================");
-                System.out.println("RED5服务开启失败！");
+        }).start();
 
-                response.put("code", RESPONSE_UN_KNOW_ERROR);
-                response.put("message", "RED5 Service start failure!");
+        response.put("code", RESPONSE_SUCCESS);
+        response.put("data", Config.Media.RTMP_URL);
 
-                return response.toString();
-            }
-
-
-        } catch (InterruptedException | IOException e) {
-            e.printStackTrace();
-
-            new Thread(() -> stopRed5Service()).start();
-
-            response.put("code", RESPONSE_UN_KNOW_ERROR);
-            response.put("message", e.getMessage());
-        }
+//        try {
+//            // 启动red5服务
+//            startRed5Service();
+//            // 等待red5服务开启完成
+//            // red5服务开启成功
+//            if (red5Started()) {
+//                System.out.println("=========================================================");
+//                System.out.println("RED5 Service start success.");
+//
+//                MediaUtils.startPhotograph(token, Config.Media.RTMP_URL, Config.Media.FRAME_RATE, new MediaUtils.OnMediaListener() {
+//                    @Override
+//                    public void onSuccess() {
+//                        System.out.println("FrameRecorder start success.");
+//                    }
+//
+//                    @Override
+//                    public void onFailure() {
+//                        System.out.println("FrameRecorder start failure!");
+//                    }
+//                });
+//
+//                response.put("code", RESPONSE_SUCCESS);
+//                response.put("data", Config.Media.RTMP_URL);
+//            }
+//            // red5服务开启失败
+//            else {
+//                System.out.println("=========================================================");
+//                System.out.println("RED5服务开启失败！");
+//
+//                response.put("code", RESPONSE_UN_KNOW_ERROR);
+//                response.put("message", "RED5 Service start failure!");
+//
+//                return response.toString();
+//            }
+//
+//
+//        } catch (InterruptedException | IOException e) {
+//            e.printStackTrace();
+//
+//            new Thread(() -> stopRed5Service()).start();
+//
+//            response.put("code", RESPONSE_UN_KNOW_ERROR);
+//            response.put("message", e.getMessage());
+//        }
 
         return response.toString();
     }

@@ -51,5 +51,4 @@ dependencies {
     implementation 'com.android.support:design:26.1.0'
     implementation files('libs/Convenient-Android-2.5.2.jar')
     implementation(name: 'Convenient-Android-UI-1.0', ext: 'aar')
-    compile project(':vitamio')
 }

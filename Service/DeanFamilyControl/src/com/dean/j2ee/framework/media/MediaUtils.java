@@ -48,7 +48,7 @@ public class MediaUtils {
         if (frameGrabber == null) {
             Loader.load(opencv_objdetect.class);
             // 本机摄像头默认是0
-            frameGrabber = FrameGrabber.createDefault(0);
+            frameGrabber = FrameGrabber.createDefault(1);
         }
 
         return frameGrabber;
