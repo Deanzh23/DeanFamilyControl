@@ -128,6 +128,8 @@ public class MediaUtils {
                         startTime[0] = System.currentTimeMillis();
                     frameRecorder.setTimestamp(1000 * (System.currentTimeMillis() - startTime[0]));
                     frameRecorder.record(frame[0]);
+
+                    frameGrabber.flush();
                 }
             } catch (FrameGrabber.Exception | FrameRecorder.Exception e) {
                 e.printStackTrace();
